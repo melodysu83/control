@@ -38,7 +38,7 @@ t_,x_ = sim(f,t1,xs,us,dt=4e-2)
 
 lineObjects = plt.plot(t_,x_,'-')
 plt.xlabel('time (sec)')
-plt.ylabel('state')
+plt.ylabel('state (init =[2,1,-1,1,-1.57])')
 plt.legend(iter(lineObjects),('x1','x2','v1','v2','theta'))
 plt.show()
 

@@ -412,7 +412,4 @@ axarrrr[1].legend(['Dy1','Dy2','Dy3'],loc=4)
 axarrrr[1].set_title('Controller/Observer Error Plot (Nonlinear)')
 #axarrrr[1].plot(t_sim_,z_[0,:],'k--')
 
-
-
-
 plt.show()

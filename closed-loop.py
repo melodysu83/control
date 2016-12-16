@@ -59,11 +59,9 @@ def sim_hat(f, t, x, x_hat, u, K_matrix, L_matrix, dt=ts):
 		x2 = x2+2*math.pi
         x_sim_.append(np.array([x1,x2,x3]))
 	Dy1,Dy2,Dy3 = Dy_sim_[-1]
-	#x_hat_next = np.dot(Ad,x_hat_sim_[-1])+np.dot(Bd,u)+np.dot(L_matrix,[Dy1,Dy2,Dy3])
-	x_hat_next = np.array([x1-0.0/(j_sim**1.1*ts+1),x2+1.0/(j_sim**1.2*ts+1),x3+0.0/(j_sim**1.3*ts+1)])
+	x_hat_next = np.dot(Ad,x_hat_sim_[-1])+np.dot(Bd,u)+np.dot(L_matrix,[Dy1,Dy2,Dy3])
 	x_hat_sim_.append([x_hat_next[0,0],x_hat_next[1,0],x_hat_next[2,0]])
-	Dy_sim_.append([x_hat_next[0,0]-x1,x_hat_next[1,0]-x2,x_hat_next[2,0]-x3])
-	#Dy_sim_.append(Dy_sim_[-1]+np.dot(A-np.dot(L_matrix,C),Dy_sim_[-1]-np.dot(C,[x1,x2,x3])))
+	Dy_sim_.append(Dy_sim_[-1]+np.dot(A-np.dot(L_matrix,C),Dy_sim_[-1]-np.dot(C,[x1,x2,x3])))
         j_sim += 1
     return np.array(t_sim_),np.array(x_sim_),np.array(x_hat_sim_),np.array(Dy_sim_)
 
@@ -369,12 +367,10 @@ for i in range(0,iterations):
 	t_[:,i] = ts*i
 	u_[:,i+1] = -np.dot(K_matrix,[x_hat_[0,i],x_hat_[1,i],x_hat_[2,i]])
 	x_next = np.dot(Ad,x_[:,i])+np.dot(Bd,u_[:,i+1])
-	x_hat_next = x_next+np.array([[-26.0/(i**1.1*ts+1)],[1.0/(i**1.2*ts+1)],[23.0/(i**1.3*ts+1)]])[:,0]
-	#x_hat_next = np.dot(Ad,x_hat_[:,i])+np.dot(Bd,u_[:,i+1])+np.dot(L_matrix,Dy_[:,i])
+	x_hat_next = np.dot(Ad,x_hat_[:,i])+np.dot(Bd,u_[:,i+1])+np.dot(L_matrix,Dy_[:,i])
 	x_[:,i+1] = x_next
 	x_hat_[:,i+1] = x_hat_next
-	Dy_[:,i+1] = np.dot(C,x_next)-np.dot(C,x_hat_next)
-	#Dy_[:,i+1] = Dy_[:,i]+np.dot(A-np.dot(L_matrix,C),error_[:,i])
+	Dy_[:,i+1] = Dy_[:,i]+np.dot(A-np.dot(L_matrix,C),error_[:,i])
 
 t_ = np.hstack((np.squeeze(t_),np.array([iterations*ts])))
 
@@ -396,7 +392,7 @@ axarrr[1].plot(t_, Dy_[2,:])
 axarrr[1].legend(['Dy1','Dy2','Dy3'],loc=4)
 axarrr[1].set_title('Controller/Observer Error Plot (Linear)')
 axarrr[1].plot(t_,z_[0,:],'k--')
-'''
+
 # nonlinear simulation
 x0 = np.array([[Xo[0][0]],[Xo[1][0]],[Xo[2][0]]])
 x0_hat = np.array([[Xo[0][0]+0.1],[Xo[1][0]+0.1],[Xo[2][0]-0.1]])
@@ -415,30 +411,8 @@ axarrrr[1].plot(t_sim_,Dy_sim_[:,:,0],'-')
 axarrrr[1].legend(['Dy1','Dy2','Dy3'],loc=4)
 axarrrr[1].set_title('Controller/Observer Error Plot (Nonlinear)')
 #axarrrr[1].plot(t_sim_,z_[0,:],'k--')
-'''
 
-x_hat_sim_ = np.zeros((n_states,iterations+1))
-Dy_sim_ = np.zeros((n_states,iterations+1))
 
-x0 = np.array([Xo[0][0],Xo[1][0],Xo[2][0]])
-u0 = np.array([0,0])
-t_sim_,x_sim_,u_sim_ = sim(f,total_time,x0,u0,K_matrix,dt=ts)
-print x_sim_.shape
-for i in range(0,x_sim_.shape[0]):
-	x_hat_sim_[:,i] = np.transpose(x_sim_[i,:])+np.array([[-3.0/(i**1.4*ts+1)],[1.0/(i**1.2*ts+1)],[2.0/(i**1.3*ts+1)]])[:,0]
 
-Dy_sim_ = x_hat_sim_ - np.transpose(x_sim_)
-
-fff, axarrrr = plt.subplots(2, sharex = True)
-axarrrr[0].plot(t_sim_,x_sim_,'-')
-axarrrr[0].plot(t_sim_,np.transpose(x_hat_sim_),'-')
-axarrrr[0].legend(['x1','x2','x3','x_hat1','x_hat2','x_hat3'],loc=4)
-axarrrr[0].set_title('Controller/Observer State Plot (Nonlinear)')
-axarrrr[0].plot(t_sim_,z_[0,:],'k--')
-
-axarrrr[1].plot(t_sim_,np.transpose(Dy_sim_),'-')
-axarrrr[1].legend(['Dy1','Dy2','Dy3'],loc=4)
-axarrrr[1].set_title('Controller/Observer Error Plot (Nonlinear)')
-axarrrr[1].plot(t_sim_,z_[0,:],'k--')
 
 plt.show()
